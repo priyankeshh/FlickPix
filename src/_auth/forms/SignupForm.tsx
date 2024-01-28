@@ -1,17 +1,16 @@
-import * as z from "zod";
-import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
-import { zodResolver } from "@hookform/resolvers/zod";
-
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import Loader from "@/components/shared/Loader";
-import { useToast } from "@/components/ui/use-toast";
-
-import { useCreateUserAccount, useSignInAccount } from "@/lib/react-query/queries";
-import { SignupValidation } from "@/lib/validation";
-import { useUserContext } from "@/context/AuthContext";
+import React from 'react';
+import * as z from 'zod';
+import { useForm } from 'react-hook-form';
+import { Link, useNavigate } from 'react-router-dom';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import Loader from '@/components/shared/Loader';
+import { useToast } from '@/components/ui/use-toast';
+import { useCreateUserAccount, useSignInAccount } from '@/lib/react-query/queriesAndMutations';
+import { SignupValidation } from '@/lib/validation';
+import { useUserContext } from '@/context/AuthContext';
 
 const SignupForm = () => {
   const { toast } = useToast();
@@ -21,25 +20,22 @@ const SignupForm = () => {
   const form = useForm<z.infer<typeof SignupValidation>>({
     resolver: zodResolver(SignupValidation),
     defaultValues: {
-      name: "",
-      username: "",
-      email: "",
-      password: "",
+      name: '',
+      username: '',
+      email: '',
+      password: '',
     },
   });
 
-  // Queries
-  const { mutateAsync: createUserAccount, isLoading: isCreatingAccount } = useCreateUserAccount();
-  const { mutateAsync: signInAccount, isLoading: isSigningInUser } = useSignInAccount();
+  const { mutateAsync: createUserAccount, isPending: isCreatingAccount } = useCreateUserAccount();
+  const { mutateAsync: signInAccount, isPending: isSigningInUser } = useSignInAccount();
 
-  // Handler
   const handleSignup = async (user: z.infer<typeof SignupValidation>) => {
     try {
       const newUser = await createUserAccount(user);
 
       if (!newUser) {
-        toast({ title: "Sign up failed. Please try again.", });
-        
+        toast({ title: 'Sign up failed. Please try again.' });
         return;
       }
 
@@ -49,10 +45,8 @@ const SignupForm = () => {
       });
 
       if (!session) {
-        toast({ title: "Something went wrong. Please login your new account", });
-        
-        navigate("/sign-in");
-        
+        toast({ title: 'Something went wrong. Please login to your new account' });
+        navigate('/sign-in');
         return;
       }
 
@@ -60,12 +54,9 @@ const SignupForm = () => {
 
       if (isLoggedIn) {
         form.reset();
-
-        navigate("/");
+        navigate('/');
       } else {
-        toast({ title: "Login failed. Please try again.", });
-        
-        return;
+        toast({ title: 'Login failed. Please try again.' });
       }
     } catch (error) {
       console.log({ error });
@@ -81,7 +72,7 @@ const SignupForm = () => {
           Create a new account
         </h2>
         <p className="text-light-3 small-medium md:base-regular mt-2">
-          To use FlickPix, Please enter your details
+          To use snapgram, please enter your details.
         </p>
 
         <form
@@ -144,21 +135,19 @@ const SignupForm = () => {
           />
 
           <Button type="submit" className="shad-button_primary">
-            {isCreatingAccount || isSigningInUser || isUserLoading ? (
+            {isCreatingAccount || isSigningInUser ? (
               <div className="flex-center gap-2">
-                <Loader /> Loading...
+                <Loader /> Creating account...
               </div>
             ) : (
-              "Sign Up"
+              'Sign Up'
             )}
           </Button>
 
           <p className="text-small-regular text-light-2 text-center mt-2">
             Already have an account?
-            <Link
-              to="/sign-in"
-              className="text-primary-500 text-small-semibold ml-1">
-              Log in
+            <Link to="/sign-in" className="text-primary-500 text-small-semibold ml-1">
+              Log In
             </Link>
           </p>
         </form>
